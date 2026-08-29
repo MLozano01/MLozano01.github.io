@@ -94,6 +94,8 @@
   .kw{color:var(--purple);font-family:'JetBrains Mono',monospace;}
   .str{color:var(--mint);}
   .fn{color:var(--blue);font-family:'JetBrains Mono',monospace;}
+  .rejected{color:var(--pink);font-family:'JetBrains Mono',monospace;font-weight:600;}
+  .shipped{color:var(--mint);font-family:'JetBrains Mono',monospace;font-weight:600;}
 
   /* ---------- hero ---------- */
   .hero .lines{counter-reset:line;}
@@ -207,10 +209,12 @@
 
 <nav class="tabbar" id="tabbar">
   <div class="tab active" data-target="home"><span class="dot"></span>home</div>
+  <div class="tab" data-target="current-role"><span class="dot"></span>mercadolibre.md</div>
   <div class="tab" data-target="desconectapp"><span class="dot"></span>desconectapp.go</div>
   <div class="tab" data-target="tp-distribuidos"><span class="dot"></span>tp-distribuidos.md</div>
   <div class="tab" data-target="feed-service"><span class="dot"></span>feed-service.go</div>
   <div class="tab" data-target="worms"><span class="dot"></span>worms.cpp</div>
+  <div class="tab" data-target="concurrentes"><span class="dot"></span>concurrentes.rs</div>
   <div class="tab" data-target="stack"><span class="dot"></span>stack.json</div>
   <div class="tab" data-target="contact"><span class="dot"></span>contact.sh</div>
 </nav>
@@ -233,6 +237,35 @@
     </div></div>
   </div>
 </section>
+
+<!-- CURRENT ROLE -->
+<section class="file" id="current-role">
+  <div class="filepath">~/experience/mercadolibre.md</div>
+
+  <div class="lines">
+    <div class="line"><div class="line-content"><span class="kw">status:</span> <span class="str">"currently employed"</span> <span class="comment">// Nov 2025 — present</span></div></div>
+    <div class="line"><div class="line-content hero-tag" style="margin-top:.3rem;">Software Developer, Search team — working on shipping estimation inside product search.</div></div>
+  </div>
+
+  <div class="sec-head">What the team owns</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">When someone searches for a product on Mercado Libre, every result needs a shipping estimate attached to it — cost, timing, availability — computed per listing, per search, for every seller and every client on the platform. My team builds and runs the systems that produce that estimate.</div></div>
+  </div>
+
+  <div class="sec-head">Why it's an interesting engineering problem</div>
+  <ul class="plain lines">
+    <li class="line"><div class="line-content">The computation sits directly in the <span class="fn">critical path</span> of search — it can't be async or best-effort, it has to return correct and fast, on every single search request across the platform</div></li>
+    <li class="line"><div class="line-content">It runs at the scale of one of Latin America's largest e-commerce marketplaces, across many countries, sellers, and shipping configurations simultaneously</div></li>
+    <li class="line"><div class="line-content">Any regression here doesn't fail quietly — it's visible on essentially every search, which makes reliability and latency budgets first-class engineering constraints, not afterthoughts</div></li>
+  </ul>
+
+  <div class="sec-head">What I do day to day</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Contribute to backend services and internal platform work for this pipeline, collaborating cross-functionally with the wider Search org in an agile workflow — balancing correctness, latency, and reliability on a system where "it usually works" isn't good enough.</div></div>
+  </div>
+</section>
+
+<hr class="rule">
 
 <!-- DESCONECTAPP -->
 <section class="file" id="desconectapp">
@@ -260,10 +293,10 @@
     <div class="line"><div class="line-content">The core design question: how do you group N pending requests into compatible clusters (same activity, overlapping availability, overlapping location radius, compatible group size) without the computation blowing up as usage grows?</div></div>
   </div>
   <ul class="plain lines">
-    <li class="line"><div class="line-content"><span class="fn">Rejected:</span> modeling requests as a graph and searching for cliques — finding a clique of a given size is NP-complete, and the target clique size wasn't even known in advance</div></li>
-    <li class="line"><div class="line-content"><span class="fn">Rejected:</span> embedding-based similarity matching — added complexity without benefit, since compatibility here is categorical (same activity or not), not a fuzzy semantic match</div></li>
-    <li class="line"><div class="line-content"><span class="fn">Shipped:</span> a dynamic-programming approach using an intermediate "partial match" structure that incrementally merges compatible requests, tested against every edge case the team could construct, with no found counterexample</div></li>
+    <li class="line"><div class="line-content"><span class="shipped">Shipped:</span> a dynamic-programming approach using an intermediate "partial match" structure that incrementally merges compatible requests, tested against every edge case the team could construct, with no found counterexample</div></li>
     <li class="line"><div class="line-content">Measured complexity: O(N log N) worst case, dominated by sorting partial matches by member count before a linear compatibility scan</div></li>
+    <li class="line"><div class="line-content"><span class="rejected">Rejected:</span> modeling requests as a graph and searching for cliques — finding a clique of a given size is NP-complete, and the target clique size wasn't even known in advance</div></li>
+    <li class="line"><div class="line-content"><span class="rejected">Rejected:</span> embedding-based similarity matching — added complexity without benefit, since compatibility here is categorical (same activity or not), not a fuzzy semantic match</div></li>
   </ul>
 
   <div class="sec-head">Architecture</div>
@@ -298,7 +331,7 @@
   <div class="stat-row">
     <div class="stat"><div class="stat-num">~35</div><div class="stat-label">containerized nodes</div></div>
     <div class="stat"><div class="stat-num">7</div><div class="stat-label">distinct node types</div></div>
-    <div class="stat"><div class="stat-num">3</div><div class="stat-label">replicated health monitors</div></div>
+    <div class="stat"><div class="stat-num">3+</div><div class="stat-label">replicated health monitors (scalable)</div></div>
     <div class="stat"><div class="stat-num">0</div><div class="stat-label">data loss on induced failure</div></div>
   </div>
 
@@ -316,7 +349,7 @@
     <li class="line"><div class="line-content"><span class="fn">joiner</span> — merges ratings and credits data streams into enriched records</div></li>
     <li class="line"><div class="line-content"><span class="fn">aggregator</span> / <span class="fn">reducer</span> — compute running metrics (top-5/top-10 lists, averages, budget sums) and checkpoint state to disk</div></li>
     <li class="line"><div class="line-content"><span class="fn">data-controller</span> — coordinates ingestion per dataset (movies, ratings, credits) across replicas</div></li>
-    <li class="line"><div class="line-content"><span class="fn">healthchecker</span> — 3 replicated instances, each watching a distinct, partitioned subset of nodes, so no single monitor is a point of failure</div></li>
+    <li class="line"><div class="line-content"><span class="fn">healthchecker</span> — 3 replicated instances in the base configuration, each watching a distinct, partitioned subset of nodes so no single monitor is a point of failure; replica count is configurable and scales up as the node count grows</div></li>
   </ul>
 
   <div class="sec-head">Proving it holds up</div>
@@ -393,6 +426,55 @@
   </div>
 
   <a class="repo-link" href="https://github.com/franjuarez/Taller-Worms" target="_blank" rel="noopener">↳ view repository</a>
+</section>
+
+<hr class="rule">
+
+<!-- CONCURRENTES -->
+<section class="file" id="concurrentes">
+  <div class="filepath">~/projects/concurrentes.rs</div>
+
+  <div class="lines">
+    <div class="line"><div class="line-content"><span class="kw">struct</span> <span class="fn">DistributedOrderSystem</span> <span class="comment">// Concurrent Programming, FIUBA</span></div></div>
+    <div class="line"><div class="line-content str">"A fault-tolerant, actor-based system coordinating order-taking and fulfillment nodes over a custom TCP protocol, with no single point of failure."</div></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">cooperating node types</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">independent ring topologies</div></div>
+    <div class="stat"><div class="stat-num">1</div><div class="stat-label">leader election algorithm</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">delivery rounds, reworked fault-tolerance design</div></div>
+  </div>
+
+  <div class="sec-head">Problem</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Coordinate two distinct fleets of nodes — order-taking terminals and fulfillment units serving a shared, limited inventory — so that any single node (including the leader) can fail mid-order without losing or duplicating work, and without a central coordinator as a single point of failure.</div></div>
+  </div>
+
+  <div class="sec-head">Architecture</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Built in Rust with an actor-based design across two node types:</div></div>
+  </div>
+  <ul class="plain lines">
+    <li class="line"><div class="line-content"><span class="fn">Screens</span> — take and pay for orders, form their own ring, and back each other up peer-to-peer (A backs up to B, B to C, C to A), so a failed screen's pending and completed orders are always recoverable from exactly one neighbor</div></li>
+    <li class="line"><div class="line-content"><span class="fn">Robots</span> — arranged in a separate ring, fulfill orders, and elect a leader among themselves that bridges the two rings, distributing work and reporting completion back to Screens</div></li>
+    <li class="line"><div class="line-content">All inter-node communication runs over raw TCP with a custom, hand-rolled protocol: enum-based message types, JSON serialization, newline-delimited framing</div></li>
+  </ul>
+
+  <div class="sec-head">Distributed mutual exclusion over shared inventory</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Each inventory item circulates the Robot ring as a token; a robot can only consume that item while holding its token, and passes it along when idle or already serving something else. If a token goes missing (e.g. lost during a robot failure), the discovering robot triggers a recovery pass: every robot reports the last quantity it saw, and the token is reissued with the lowest reported value — the most conservative, safest reconstruction available.</div></div>
+  </div>
+
+  <div class="sec-head">Reworking fault tolerance between deliverables</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">The first version detected robot failures with periodic heartbeat messages. After the first delivery, this was replaced with detection via the TCP connection itself — using the socket's own disconnect signal instead of polling — for faster, event-driven failure detection. Backup scope was also widened from two adjacent robots to all robots, trading a bit of redundancy for meaningfully higher resilience.</div></div>
+  </div>
+
+  <div class="sec-head">Stack</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Rust · TCP sockets · custom actor model · serde_json</div></div>
+  </div>
 </section>
 
 <hr class="rule">
