@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Martina Lozano — Backend Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0e14;
+    --bg-alt:#10141c;
+    --surface:#141922;
+    --border:#232936;
+    --text:#c9d1d9;
+    --text-dim:#6e7681;
+    --orange:#4fd1c5;
+    --mint:#7ee3b5;
+    --blue:#79c0ff;
+    --purple:#d2a8ff;
+    --pink:#ff7b9c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--orange);color:#0b0e14;}
+  a{color:var(--blue);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  :focus-visible{outline:2px solid var(--orange);outline-offset:2px;}
+
+  /* ---------- tab bar ---------- */
+  .tabbar{
+    position:sticky;top:0;z-index:50;
+    display:flex;overflow-x:auto;
+    background:var(--bg-alt);
+    border-bottom:1px solid var(--border);
+    scrollbar-width:none;
+  }
+  .tabbar::-webkit-scrollbar{display:none;}
+  .tab{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.8rem;
+    white-space:nowrap;
+    padding:.85rem 1.2rem;
+    color:var(--text-dim);
+    border-right:1px solid var(--border);
+    border-bottom:2px solid transparent;
+    cursor:pointer;
+    display:flex;align-items:center;gap:.5rem;
+    transition:color .15s ease, background .15s ease;
+  }
+  .tab:hover{color:var(--text);background:var(--surface);}
+  .tab.active{color:var(--text);border-bottom-color:var(--orange);background:var(--bg);}
+  .tab .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;}
+  .tab.active .dot{background:var(--orange);opacity:1;}
+
+  /* ---------- shared file-panel styling ---------- */
+  .file{max-width:920px;margin:0 auto;padding:5rem 1.5rem 2rem;scroll-margin-top:3rem;}
+  .filepath{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.78rem;
+    color:var(--text-dim);
+    margin-bottom:1.6rem;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .filepath::before{content:"›";color:var(--orange);}
+
+  .lines{border-left:1px solid var(--border);}
+  .line{
+    display:grid;
+    grid-template-columns:2.6rem 1fr;
+    counter-increment:line;
+    position:relative;
+  }
+  .line::before{
+    content:counter(line);
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    color:var(--text-dim);
+    text-align:right;
+    padding:.15rem 1rem .15rem 0;
+    user-select:none;
+    opacity:.55;
+  }
+  .line-content{padding:.15rem 0 .15rem .2rem;}
+  .comment{color:var(--text-dim);font-style:italic;font-family:'JetBrains Mono',monospace;font-size:.85rem;}
+  .kw{color:var(--purple);font-family:'JetBrains Mono',monospace;}
+  .str{color:var(--mint);}
+  .fn{color:var(--blue);font-family:'JetBrains Mono',monospace;}
+
+  /* ---------- hero ---------- */
+  .hero .lines{counter-reset:line;}
+  .hero-name{
+    font-family:'JetBrains Mono',monospace;
+    font-size:clamp(1.8rem,5vw,2.6rem);
+    font-weight:700;
+    color:var(--text);
+  }
+  .hero-name .kw{font-size:.55em;display:block;margin-bottom:.3rem;font-weight:500;}
+  .hero-tag{color:var(--text-dim);font-size:1rem;max-width:60ch;margin-top:.4rem;}
+  .hero-links{display:flex;flex-wrap:wrap;gap:1.4rem;margin-top:1.5rem;}
+  .hero-links a{font-family:'JetBrains Mono',monospace;font-size:.85rem;}
+  .badge-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem;}
+  .badge{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    padding:.25rem .6rem;
+    border:1px solid var(--border);
+    border-radius:4px;
+    color:var(--mint);
+    background:var(--surface);
+  }
+
+  /* ---------- section headers within a case study ---------- */
+  .sec-head{
+    margin:2.4rem 0 .6rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.75rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--orange);
+  }
+  .sec-head::before{content:"// ";color:var(--text-dim);}
+  .lines + .sec-head{margin-top:2.4rem;}
+
+  ul.plain{list-style:none;}
+  ul.plain .line-content{position:relative;padding-left:1.1rem;}
+  ul.plain .line-content::before{
+    content:"→";position:absolute;left:0;color:var(--orange);
+  }
+
+  .stat-row{display:flex;flex-wrap:wrap;gap:1.2rem;margin:1.6rem 0 .5rem;}
+  .stat{
+    border:1px solid var(--border);
+    background:var(--surface);
+    border-radius:6px;
+    padding:.9rem 1.1rem;
+    min-width:140px;
+  }
+  .stat-num{font-family:'JetBrains Mono',monospace;font-size:1.4rem;color:var(--blue);font-weight:700;}
+  .stat-label{font-size:.72rem;color:var(--text-dim);margin-top:.15rem;}
+
+  .repo-link{
+    display:inline-flex;align-items:center;gap:.4rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.8rem;
+    margin-top:1.8rem;
+    padding:.5rem .9rem;
+    border:1px solid var(--border);
+    border-radius:6px;
+    color:var(--text);
+  }
+  .repo-link:hover{border-color:var(--orange);text-decoration:none;color:var(--orange);}
+
+  hr.rule{border:none;border-top:1px solid var(--border);margin:3.5rem 0 0;}
+
+  /* ---------- stack.json ---------- */
+  .stackfile{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.6rem;font-family:'JetBrains Mono',monospace;font-size:.85rem;overflow-x:auto;}
+  .stackfile .k{color:var(--blue);}
+  .stackfile .v{color:var(--mint);}
+  .stackfile .punc{color:var(--text-dim);}
+  .stackfile .indent{padding-left:1.4rem;}
+
+  /* ---------- contact / footer ---------- */
+  .terminal{
+    max-width:920px;margin:0 auto;padding:4rem 1.5rem 6rem;scroll-margin-top:3rem;
+  }
+  .term-window{
+    background:var(--bg-alt);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .term-bar{
+    display:flex;align-items:center;gap:.4rem;
+    padding:.7rem 1rem;
+    border-bottom:1px solid var(--border);
+  }
+  .term-bar span{width:10px;height:10px;border-radius:50%;background:#3a4150;}
+  .term-body{padding:1.6rem;font-family:'JetBrains Mono',monospace;font-size:.88rem;}
+  .term-line{margin-bottom:.9rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline;}
+  .prompt{color:var(--mint);}
+  .term-line a{color:var(--text);border-bottom:1px dashed var(--border);}
+  .term-line a:hover{color:var(--orange);border-color:var(--orange);text-decoration:none;}
+  .cursor{display:inline-block;width:8px;height:1em;background:var(--orange);animation:blink 1s step-end infinite;vertical-align:text-bottom;}
+  @keyframes blink{50%{opacity:0;}}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .cursor{animation:none;}
+  }
+
+  @media (max-width:600px){
+    .line{grid-template-columns:2rem 1fr;}
+    .hero-links{gap:1rem;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="tabbar" id="tabbar">
+  <div class="tab active" data-target="home"><span class="dot"></span>home</div>
+  <div class="tab" data-target="desconectapp"><span class="dot"></span>desconectapp.go</div>
+  <div class="tab" data-target="tp-distribuidos"><span class="dot"></span>tp-distribuidos.md</div>
+  <div class="tab" data-target="feed-service"><span class="dot"></span>feed-service.go</div>
+  <div class="tab" data-target="worms"><span class="dot"></span>worms.cpp</div>
+  <div class="tab" data-target="stack"><span class="dot"></span>stack.json</div>
+  <div class="tab" data-target="contact"><span class="dot"></span>contact.sh</div>
+</nav>
+
+<!-- HOME -->
+<section class="file hero" id="home">
+  <div class="filepath">~/martina-lozano/README.md</div>
+  <div class="lines">
+    <div class="line"><div class="line-content hero-name"><span class="kw">const engineer =</span> Martina Lozano</div></div>
+    <div class="line"><div class="line-content hero-tag">Software Engineer focused on backend systems, distributed architectures, and services that hold up under failure. Currently building at Mercado Libre.</div></div>
+    <div class="line"><div class="line-content">&nbsp;</div></div>
+    <div class="line"><div class="line-content hero-links">
+      <a href="https://github.com/MLozano01" target="_blank" rel="noopener">github.com/MLozano01</a>
+      <a href="https://linkedin.com/in/martina-lozano" target="_blank" rel="noopener">linkedin.com/in/martina-lozano</a>
+      <a href="mailto:martulozano11@gmail.com">martulozano11@gmail.com</a>
+    </div></div>
+    <div class="line"><div class="line-content badge-row">
+      <span class="badge">Go</span><span class="badge">Python</span><span class="badge">C++</span>
+      <span class="badge">RabbitMQ</span><span class="badge">Docker</span><span class="badge">Distributed Systems</span>
+    </div></div>
+  </div>
+</section>
+
+<!-- DESCONECTAPP -->
+<section class="file" id="desconectapp">
+  <div class="filepath">~/projects/desconectapp.go</div>
+
+  <div class="lines">
+    <div class="line"><div class="line-content"><span class="kw">type</span> <span class="fn">Desconectapp</span> <span class="kw">struct</span> <span class="comment">// capstone thesis, UBA — 2025</span></div></div>
+    <div class="line"><div class="line-content str">"A platform that matches strangers into small groups by shared activity, location, and free time — to get people offline and meeting face to face."</div></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">person team</div></div>
+    <div class="stat"><div class="stat-num">1yr</div><div class="stat-label">development</div></div>
+    <div class="stat"><div class="stat-num">O(N log N)</div><div class="stat-label">matching algorithm</div></div>
+    <div class="stat"><div class="stat-num">2</div><div class="stat-label">approaches rejected first</div></div>
+  </div>
+
+  <div class="sec-head">Problem</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Most social apps optimize for time spent on-screen. We built the opposite: a system whose entire job is to get itself out of the way and put small groups of compatible strangers in the same physical place, at a time and place that works for all of them.</div></div>
+  </div>
+
+  <div class="sec-head">Designing the matching algorithm</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">The core design question: how do you group N pending requests into compatible clusters (same activity, overlapping availability, overlapping location radius, compatible group size) without the computation blowing up as usage grows?</div></div>
+  </div>
+  <ul class="plain lines">
+    <li class="line"><div class="line-content"><span class="fn">Rejected:</span> modeling requests as a graph and searching for cliques — finding a clique of a given size is NP-complete, and the target clique size wasn't even known in advance</div></li>
+    <li class="line"><div class="line-content"><span class="fn">Rejected:</span> embedding-based similarity matching — added complexity without benefit, since compatibility here is categorical (same activity or not), not a fuzzy semantic match</div></li>
+    <li class="line"><div class="line-content"><span class="fn">Shipped:</span> a dynamic-programming approach using an intermediate "partial match" structure that incrementally merges compatible requests, tested against every edge case the team could construct, with no found counterexample</div></li>
+    <li class="line"><div class="line-content">Measured complexity: O(N log N) worst case, dominated by sorting partial matches by member count before a linear compatibility scan</div></li>
+  </ul>
+
+  <div class="sec-head">Architecture</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Deliberately monolithic, not microservices — a layered Handler → Service → Repository backend in Go/Gin, with sqlc generating type-checked Go from raw SQL instead of an ORM. A React Native + Expo mobile client shares one codebase across Android and iOS. Real-time group chat runs on Supabase (Postgres + Row-Level Security), bridged to the app's own JWT auth via a single token-issuing endpoint — avoiding a second, unsynchronized user table.</div></div>
+  </div>
+
+  <div class="sec-head">A production bug: database concurrency</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Early versions used a single <span class="fn">pgx.Conn</span> to Postgres. Under concurrent requests from the frontend, this serialized every query behind the scenes — and certain delete operations left the connection in an invalid state, crashing the process outright. Migrated to <span class="fn">pgxpool</span> for proper connection pooling, eliminating both the serialization bottleneck and the crash.</div></div>
+  </div>
+
+  <div class="sec-head">Stack</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Go · Gin · sqlc · PostgreSQL · Supabase · React Native · Expo · Docker · Gemini API</div></div>
+  </div>
+
+  <a class="repo-link" href="https://github.com/desconectapp/Desconectapp-back" target="_blank" rel="noopener">↳ view organization</a>
+</section>
+
+<hr class="rule">
+
+<!-- TP-DISTRIBUIDOS -->
+<section class="file" id="tp-distribuidos">
+  <div class="filepath">~/projects/tp-distribuidos.md</div>
+
+  <div class="lines">
+    <div class="line"><div class="line-content"><span class="kw">class</span> <span class="fn">DistributedMovieAnalysisSystem</span></div></div>
+    <div class="line"><div class="line-content str">"A fault-tolerant, horizontally-scaled pipeline for analyzing large movie datasets across many concurrent clients."</div></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-num">~35</div><div class="stat-label">containerized nodes</div></div>
+    <div class="stat"><div class="stat-num">7</div><div class="stat-label">distinct node types</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">replicated health monitors</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-label">data loss on induced failure</div></div>
+  </div>
+
+  <div class="sec-head">Problem</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Analyzing a large movie dataset (genres, ratings, credits, revenue) for multiple concurrent clients means the work can't run as a single script — it needs to be split, scaled, and kept correct even when individual pieces fail mid-run.</div></div>
+  </div>
+
+  <div class="sec-head">Architecture</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Built as a pipeline of specialized, independently scalable node types connected through RabbitMQ:</div></div>
+  </div>
+  <ul class="plain lines">
+    <li class="line"><div class="line-content"><span class="fn">filter</span> — narrows records by criteria (decade, country, language), running multiple replicas in parallel</div></li>
+    <li class="line"><div class="line-content"><span class="fn">joiner</span> — merges ratings and credits data streams into enriched records</div></li>
+    <li class="line"><div class="line-content"><span class="fn">aggregator</span> / <span class="fn">reducer</span> — compute running metrics (top-5/top-10 lists, averages, budget sums) and checkpoint state to disk</div></li>
+    <li class="line"><div class="line-content"><span class="fn">data-controller</span> — coordinates ingestion per dataset (movies, ratings, credits) across replicas</div></li>
+    <li class="line"><div class="line-content"><span class="fn">healthchecker</span> — 3 replicated instances, each watching a distinct, partitioned subset of nodes, so no single monitor is a point of failure</div></li>
+  </ul>
+
+  <div class="sec-head">Proving it holds up</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Wrote a custom chaos-engineering script that kills running node containers — either one at random every few seconds, or all of them at once — to force failure conditions on demand. Used it to validate that checkpointed reducer state and automatic node recovery meant no data was lost, regardless of which node went down or when.</div></div>
+  </div>
+
+  <div class="sec-head">Stack</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Python · RabbitMQ · Docker &amp; Docker Compose · custom chaos-testing tooling</div></div>
+  </div>
+
+  <a class="repo-link" href="https://github.com/MLozano01/TP-Distribuidos" target="_blank" rel="noopener">↳ view repository</a>
+</section>
+
+<hr class="rule">
+
+<!-- FEED SERVICE -->
+<section class="file" id="feed-service">
+  <div class="filepath">~/projects/feed-service.go</div>
+
+  <div class="lines">
+    <div class="line"><div class="line-content"><span class="kw">func</span> <span class="fn">TwitSnapFeedService</span>()</div></div>
+    <div class="line"><div class="line-content str">"The feed microservice of a Twitter-like platform — search, ranking, and engagement, as one service among several."</div></div>
+  </div>
+
+  <div class="sec-head">Problem</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">A social feed needs to serve posts, handle engagement (likes, retweets, bookmarks), and support keyword search — as one deployable, testable piece of a larger, service-oriented product, not a monolith.</div></div>
+  </div>
+
+  <div class="sec-head">What I built</div>
+  <ul class="plain lines">
+    <li class="line"><div class="line-content">Feed generation, likes, bookmarks, retweets, topics, and keyword-based search, built in Go against MongoDB</div></li>
+    <li class="line"><div class="line-content">A microservice that integrates over REST with independently-run User and Messages services — designed to run and be deployed on its own</div></li>
+    <li class="line"><div class="line-content">A GitHub Actions CI pipeline running the test suite on every push, with coverage tracked via Coveralls</div></li>
+    <li class="line"><div class="line-content">Deployed to Heroku (Procfile + heroku.yml) alongside a fully dockerized local dev setup</div></li>
+  </ul>
+
+  <div class="sec-head">Stack</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Go · MongoDB · Docker · GitHub Actions · Heroku</div></div>
+  </div>
+
+  <a class="repo-link" href="https://github.com/The-Psyducks/feed-service" target="_blank" rel="noopener">↳ view repository</a>
+</section>
+
+<hr class="rule">
+
+<!-- WORMS -->
+<section class="file" id="worms">
+  <div class="filepath">~/projects/worms.cpp</div>
+
+  <div class="lines">
+    <div class="line"><div class="line-content"><span class="kw">int</span> <span class="fn">main</span>() <span class="comment">// Worms: The Remake</span></div></div>
+    <div class="line"><div class="line-content str">"The classic 2D artillery game, rebuilt from scratch in C++ with real-time multiplayer."</div></div>
+  </div>
+
+  <div class="sec-head">Architecture</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">Split cleanly into independent modules — physics simulation, networked game state, client rendering/GUI, and a shared protocol layer — rather than one tangled game loop, so each concern could be built and tested in isolation.</div></div>
+  </div>
+
+  <div class="sec-head">What I worked on</div>
+  <ul class="plain lines">
+    <li class="line"><div class="line-content">The client–server communication protocol tying the game engine to the frontend</div></li>
+    <li class="line"><div class="line-content">Concurrency handling to support multiple simultaneous matches on one server</div></li>
+    <li class="line"><div class="line-content">Testing and debugging multiplayer interactions and board/turn management</div></li>
+  </ul>
+
+  <div class="sec-head">Stack</div>
+  <div class="lines">
+    <div class="line"><div class="line-content">C++ · CMake · custom networking protocol</div></div>
+  </div>
+
+  <a class="repo-link" href="https://github.com/franjuarez/Taller-Worms" target="_blank" rel="noopener">↳ view repository</a>
+</section>
+
+<hr class="rule">
+
+<!-- STACK.JSON -->
+<section class="file" id="stack">
+  <div class="filepath">~/martina-lozano/stack.json</div>
+  <div class="stackfile">
+    <div>{</div>
+    <div class="indent"><span class="k">"languages"</span><span class="punc">:</span> [<span class="v">"Go"</span>, <span class="v">"Python"</span>, <span class="v">"C/C++"</span>, <span class="v">"Java"</span>, <span class="v">"Rust"</span>, <span class="v">"JavaScript"</span>],</div>
+    <div class="indent"><span class="k">"backend"</span><span class="punc">:</span> [<span class="v">"REST APIs"</span>, <span class="v">"RabbitMQ"</span>, <span class="v">"Distributed Systems"</span>, <span class="v">"Concurrent Programming"</span>],</div>
+    <div class="indent"><span class="k">"data"</span><span class="punc">:</span> [<span class="v">"MongoDB"</span>, <span class="v">"PostgreSQL"</span>, <span class="v">"Supabase"</span>, <span class="v">"SQL"</span>],</div>
+    <div class="indent"><span class="k">"mobile"</span><span class="punc">:</span> [<span class="v">"React Native"</span>, <span class="v">"Expo"</span>],</div>
+    <div class="indent"><span class="k">"tooling"</span><span class="punc">:</span> [<span class="v">"Docker"</span>, <span class="v">"Git"</span>, <span class="v">"Linux"</span>, <span class="v">"GitHub Actions"</span>],</div>
+    <div class="indent"><span class="k">"currently_at"</span><span class="punc">:</span> <span class="v">"Mercado Libre — Software Developer"</span>,</div>
+    <div class="indent"><span class="k">"languages_spoken"</span><span class="punc">:</span> [<span class="v">"Spanish (native)"</span>, <span class="v">"English (fluent)"</span>, <span class="v">"French (fluent)"</span>]</div>
+    <div>}</div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="terminal" id="contact">
+  <div class="filepath">~/contact.sh</div>
+  <div class="term-window">
+    <div class="term-bar"><span></span><span></span><span></span></div>
+    <div class="term-body">
+      <div class="term-line"><span class="prompt">$</span> whoami</div>
+      <div class="term-line" style="margin-left:1.2rem;color:var(--text-dim);">martina lozano — backend / distributed systems engineer</div>
+      <div class="term-line"><span class="prompt">$</span> open resume.pdf</div>
+      <div class="term-line" style="margin-left:1.2rem;"><a href="mailto:martulozano11@gmail.com">→ email me for a copy</a></div>
+      <div class="term-line"><span class="prompt">$</span> curl -s linkedin.com/in/martina-lozano</div>
+      <div class="term-line" style="margin-left:1.2rem;"><a href="https://linkedin.com/in/martina-lozano" target="_blank" rel="noopener">→ linkedin.com/in/martina-lozano</a></div>
+      <div class="term-line"><span class="prompt">$</span> git clone github.com/MLozano01</div>
+      <div class="term-line" style="margin-left:1.2rem;"><a href="https://github.com/MLozano01" target="_blank" rel="noopener">→ github.com/MLozano01</a></div>
+      <div class="term-line"><span class="prompt">$</span> <span class="cursor"></span></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const sections = Array.from(tabs).map(t => document.getElementById(t.dataset.target));
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.getElementById(tab.dataset.target).scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        tabs.forEach(t => t.classList.remove('active'));
+        const match = document.querySelector(`.tab[data-target="${entry.target.id}"]`);
+        if(match) match.classList.add('active');
+      }
+    });
+  }, {rootMargin:"-40% 0px -55% 0px"});
+
+  sections.forEach(sec => sec && observer.observe(sec));
+</script>
+
+</body>
+</html>
