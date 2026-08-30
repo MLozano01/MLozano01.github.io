@@ -39,12 +39,15 @@
   .tabbar{
     position:sticky;top:0;z-index:50;
     display:flex;overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x;
     background:var(--bg-alt);
     border-bottom:1px solid var(--border);
     scrollbar-width:none;
   }
   .tabbar::-webkit-scrollbar{display:none;}
   .tab{
+    flex:0 0 auto;
     font-family:'JetBrains Mono',monospace;
     font-size:.8rem;
     white-space:nowrap;
@@ -161,6 +164,41 @@
   }
   .repo-link:hover{border-color:var(--orange);text-decoration:none;color:var(--orange);}
 
+  .demo-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;
+    margin:1.8rem 0;
+  }
+  .demo-card{
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+    background:var(--surface);
+    position:relative;
+    cursor:pointer;
+  }
+  .demo-card video{display:block;width:100%;height:auto;background:#000;}
+  .demo-play{
+    position:absolute;top:0;left:0;right:0;
+    height:calc(100% - 2.1rem);
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(11,14,20,.25);
+    transition:background .15s ease;
+  }
+  .demo-card:hover .demo-play{background:rgba(11,14,20,.4);}
+  .demo-play svg{width:52px;height:52px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
+  .demo-card.playing .demo-play{display:none;}
+  .demo-caption{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    color:var(--text-dim);
+    padding:.6rem .8rem;
+    border-top:1px solid var(--border);
+  }
+  .demo-caption::before{content:"▸ ";color:var(--orange);}
+  @media (max-width:640px){
+    .demo-grid{grid-template-columns:1fr;}
+  }
+
   hr.rule{border:none;border-top:1px solid var(--border);margin:3.5rem 0 0;}
 
   /* ---------- stack.json ---------- */
@@ -208,13 +246,13 @@
 <body>
 
 <nav class="tabbar" id="tabbar">
-  <div class="tab active" data-target="home"><span class="dot"></span>home</div>
+  <div class="tab active" data-target="home"><span class="dot"></span>readme.md</div>
   <div class="tab" data-target="current-role"><span class="dot"></span>mercadolibre.md</div>
   <div class="tab" data-target="desconectapp"><span class="dot"></span>desconectapp.go</div>
-  <div class="tab" data-target="tp-distribuidos"><span class="dot"></span>tp-distribuidos.md</div>
-  <div class="tab" data-target="feed-service"><span class="dot"></span>feed-service.go</div>
+  <div class="tab" data-target="tp-distribuidos"><span class="dot"></span>moviepipeline.py</div>
+  <div class="tab" data-target="feed-service"><span class="dot"></span>twitsnap.go</div>
   <div class="tab" data-target="worms"><span class="dot"></span>worms.cpp</div>
-  <div class="tab" data-target="concurrentes"><span class="dot"></span>concurrentes.rs</div>
+  <div class="tab" data-target="concurrentes"><span class="dot"></span>icecream-orders.rs</div>
   <div class="tab" data-target="stack"><span class="dot"></span>stack.json</div>
   <div class="tab" data-target="contact"><span class="dot"></span>contact.sh</div>
 </nav>
@@ -314,6 +352,24 @@
     <div class="line"><div class="line-content">Go · Gin · sqlc · PostgreSQL · Supabase · React Native · Expo · Docker · Gemini API</div></div>
   </div>
 
+  <div class="sec-head">Demo</div>
+  <div class="demo-grid">
+    <div class="demo-card" data-video>
+      <video src="./agustin-demo.mp4" poster="./agustin-poster.jpg" muted loop playsinline preload="metadata"></video>
+      <div class="demo-play">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(11,14,20,.55)" stroke="white" stroke-width="1.2"/><path d="M10 8.5L16 12L10 15.5V8.5Z" fill="white"/></svg>
+      </div>
+      <div class="demo-caption">Search, matching &amp; booking flow</div>
+    </div>
+    <div class="demo-card" data-video>
+      <video src="./claudia-demo.mp4" poster="./claudia-poster.jpg" muted loop playsinline preload="metadata"></video>
+      <div class="demo-play">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(11,14,20,.55)" stroke="white" stroke-width="1.2"/><path d="M10 8.5L16 12L10 15.5V8.5Z" fill="white"/></svg>
+      </div>
+      <div class="demo-caption">Groups, communities &amp; nearby search</div>
+    </div>
+  </div>
+
   <a class="repo-link" href="https://github.com/desconectapp/Desconectapp-back" target="_blank" rel="noopener">↳ view organization</a>
 </section>
 
@@ -321,7 +377,7 @@
 
 <!-- TP-DISTRIBUIDOS -->
 <section class="file" id="tp-distribuidos">
-  <div class="filepath">~/projects/tp-distribuidos.md</div>
+  <div class="filepath">~/projects/moviepipeline.py</div>
 
   <div class="lines">
     <div class="line"><div class="line-content"><span class="kw">class</span> <span class="fn">DistributedMovieAnalysisSystem</span></div></div>
@@ -369,7 +425,7 @@
 
 <!-- FEED SERVICE -->
 <section class="file" id="feed-service">
-  <div class="filepath">~/projects/feed-service.go</div>
+  <div class="filepath">~/projects/twitsnap.go</div>
 
   <div class="lines">
     <div class="line"><div class="line-content"><span class="kw">func</span> <span class="fn">TwitSnapFeedService</span>()</div></div>
@@ -432,7 +488,7 @@
 
 <!-- CONCURRENTES -->
 <section class="file" id="concurrentes">
-  <div class="filepath">~/projects/concurrentes.rs</div>
+  <div class="filepath">~/projects/icecream-orders.rs</div>
 
   <div class="lines">
     <div class="line"><div class="line-content"><span class="kw">struct</span> <span class="fn">DistributedOrderSystem</span> <span class="comment">// Concurrent Programming, FIUBA</span></div></div>
@@ -515,26 +571,71 @@
 </section>
 
 <script>
-  const tabs = document.querySelectorAll('.tab');
-  const sections = Array.from(tabs).map(t => document.getElementById(t.dataset.target));
+  const tabbar = document.getElementById('tabbar');
+  const tabs = Array.from(document.querySelectorAll('.tab'));
+  const sections = tabs.map(t => document.getElementById(t.dataset.target)).filter(Boolean);
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      document.getElementById(tab.dataset.target).scrollIntoView({behavior:'smooth'});
+      const target = document.getElementById(tab.dataset.target);
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
     });
   });
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if(entry.isIntersecting){
-        tabs.forEach(t => t.classList.remove('active'));
-        const match = document.querySelector(`.tab[data-target="${entry.target.id}"]`);
-        if(match) match.classList.add('active');
+  function setActiveTab(id){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.target === id));
+    const activeEl = tabbar.querySelector('.tab.active');
+    if(activeEl){
+      activeEl.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    }
+  }
+
+  let ticking = false;
+  function updateActiveOnScroll(){
+    ticking = false;
+    const line = tabbar.getBoundingClientRect().bottom + 4;
+    const doc = document.documentElement;
+    const atBottom = window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
+
+    if(atBottom){
+      setActiveTab(sections[sections.length - 1].id);
+      return;
+    }
+
+    let current = sections[0];
+    for(const sec of sections){
+      if(sec.getBoundingClientRect().top <= line){
+        current = sec;
+      } else {
+        break;
+      }
+    }
+    setActiveTab(current.id);
+  }
+
+  window.addEventListener('scroll', () => {
+    if(!ticking){
+      requestAnimationFrame(updateActiveOnScroll);
+      ticking = true;
+    }
+  }, {passive:true});
+
+  window.addEventListener('resize', updateActiveOnScroll);
+  updateActiveOnScroll();
+
+  document.querySelectorAll('.demo-card[data-video]').forEach(card => {
+    const video = card.querySelector('video');
+    card.addEventListener('click', () => {
+      if(video.paused){
+        video.play();
+        card.classList.add('playing');
+      } else {
+        video.pause();
+        card.classList.remove('playing');
       }
     });
-  }, {rootMargin:"-40% 0px -55% 0px"});
-
-  sections.forEach(sec => sec && observer.observe(sec));
+    video.addEventListener('ended', () => card.classList.remove('playing'));
+  });
 </script>
 
 </body>
